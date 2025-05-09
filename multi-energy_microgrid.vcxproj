@@ -19,6 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="All_energies.cpp" />
+    <ClCompile Include="Electric_Water.cpp" />
+    <ClCompile Include="Electric_Hydrogen.cpp" />
+    <ClCompile Include="Electric_Thermal.cpp" />
+    <ClCompile Include="electric.cpp" />
+    <ClCompile Include="Electric_Cooling.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -27,6 +33,7 @@
     <ProjectGuid>{162e5945-a2fb-4819-bef0-ef8653d1c3a9}</ProjectGuid>
     <RootNamespace>MultimicrogridwithEV</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>multi-energymicrogrid</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
