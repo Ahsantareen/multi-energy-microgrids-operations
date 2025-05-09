@@ -23,9 +23,12 @@
     <ClCompile Include="Electric_Water.cpp" />
     <ClCompile Include="Electric_Hydrogen.cpp" />
     <ClCompile Include="Electric_Thermal.cpp" />
-    <ClCompile Include="electric.cpp" />
+    <ClCompile Include="Electric.cpp" />
     <ClCompile Include="Electric_Cooling.cpp" />
     <ClCompile Include="Source.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Header.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
