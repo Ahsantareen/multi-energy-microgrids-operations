@@ -9,15 +9,17 @@ ILOSTLBEGIN
 
 
 void optimizeMicrogrid(
-    int T,
-    int Cdg1,
-    int Cdg2,
-    const std::vector<int>& Pload,
-    const std::vector<int>& CGbuy,
-    const std::vector<int>& CGsell,
-    const std::vector<float>& Rdg1,
-    const std::vector<float>& Rdg2,
-    float socini,
-    int Pbmax,
-    float effin,
-    const std::string& output_filename);
+        int T,
+        int c_dg_1,
+        int c_dg_2,
+        const std::vector<int>& p_load,
+        const std::vector<int>& c_grid_buy,
+        const std::vector<int>& c_grid_sell,
+        const std::vector<float>& p_rdg_1,
+        const std::vector<float>& p_rdg_2,
+        float soc_initial,
+        int ess_max,
+        float ess_efficiency,
+        const std::string& output_filename);
+
+

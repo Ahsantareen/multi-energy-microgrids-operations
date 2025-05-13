@@ -2,61 +2,74 @@
 
 void optimizeMicrogrid(
     int T,
-    int Cdg1,
-    int Cdg2,
-    const std::vector<int>& Pload,
-    const std::vector<int>& CGbuy,
-    const std::vector<int>& CGsell,
-    const std::vector<float>& Rdg1,
-    const std::vector<float>& Rdg2,
-    float socini,
-    int Pbmax,
-    float effin,
+    int c_dg_1,
+    int c_dg_2,
+    const std::vector<int>& p_load,
+    const std::vector<int>& c_grid_buy,
+    const std::vector<int>& c_grid_sell,
+    const std::vector<float>& p_rdg_1,
+    const std::vector<float>& p_rdg_2,
+    float soc_initial,
+    int ess_max,
+    float ess_efficiency,
     const std::string& output_filename
 ) {
     auto start = std::chrono::high_resolution_clock::now();
     IloEnv env;
+
     try {
         IloModel model(env);
 
-        // Decision variables
-        IloNumVarArray PGbuy(env, T, 0, IloInfinity);
-        IloNumVarArray PGsell(env, T, 0, IloInfinity);
-        IloNumVarArray statoc(env, T, 0, 1);
-        IloNumVarArray Bchg(env, T, 0, 100);
-        IloNumVarArray Bdischg(env, T, 0, 100);
-        IloNumVarArray Pdg1(env, T, 0, 80);
-        IloNumVarArray Pdg2(env, T, 0, 100);
+        // === Decision variables ===
+        IloNumVarArray p_grid_buy(env, T, 0, IloInfinity);
+        IloNumVarArray p_grid_sell(env, T, 0, IloInfinity);
+        IloNumVarArray soc(env, T, 0, 1);
+        IloNumVarArray p_ess_charge(env, T, 0, 100);
+        IloNumVarArray p_ess_discharge(env, T, 0, 100);
+        IloNumVarArray p_dg_1(env, T, 0, 80);
+        IloNumVarArray p_dg_2(env, T, 0, 100);
 
-        // Objective function
+        // === Objective Function ===
         IloExpr objective(env);
         for (int t = 0; t < T; t++) {
-            objective += Cdg1 * Pdg1[t] + Cdg2 * Pdg2[t] + CGbuy[t] * PGbuy[t] - CGsell[t] * PGsell[t];
+            objective += c_dg_1 * p_dg_1[t] +
+                c_dg_2 * p_dg_2[t] +
+                c_grid_buy[t] * p_grid_buy[t] -
+                c_grid_sell[t] * p_grid_sell[t];
         }
         model.add(IloMinimize(env, objective));
 
-        // Constraints
+        // === Constraints ===
         for (int t = 0; t < T; t++) {
-            model.add(0 <= statoc[t]);
-            model.add(statoc[t] <= 1);
+            // State of charge bounds
+            model.add(soc[t] >= 0);
+            model.add(soc[t] <= 1);
 
+            // SoC update equations & ESS power bounds
             if (t == 0) {
-                model.add(statoc[t] == socini + ((effin * Bchg[t] - (Bdischg[t] / effin)) / Pbmax));
-                model.add(Bchg[t] <= (Pbmax * (1 - socini) / effin));
-                model.add(Bdischg[t] <= (Pbmax * socini * effin));
+                model.add(soc[t] == soc_initial +
+                    ((ess_efficiency * p_ess_charge[t] - p_ess_discharge[t] / ess_efficiency) / ess_max));
+                model.add(p_ess_charge[t] <= (ess_max * (1 - soc_initial) / ess_efficiency));
+                model.add(p_ess_discharge[t] <= (ess_max * soc_initial * ess_efficiency));
             }
             else {
-                model.add(statoc[t] == statoc[t - 1] + ((effin * Bchg[t] - (Bdischg[t] / effin)) / Pbmax));
-                model.add(Bchg[t] <= (Pbmax * (1 - statoc[t - 1])) / effin);
-                model.add(Bdischg[t] <= Pbmax * statoc[t - 1] * effin);
+                model.add(soc[t] == soc[t - 1] +
+                    ((ess_efficiency * p_ess_charge[t] - p_ess_discharge[t] / ess_efficiency) / ess_max));
+                model.add(p_ess_charge[t] <= (ess_max * (1 - soc[t - 1])) / ess_efficiency);
+                model.add(p_ess_discharge[t] <= ess_max * soc[t - 1] * ess_efficiency);
             }
 
-            model.add(Pdg1[t] + Pdg2[t] + Rdg1[t] + Rdg2[t] + Bdischg[t] - Bchg[t] + PGbuy[t] - PGsell[t] == Pload[t]);
+            // Power balance constraint
+            model.add(p_dg_1[t] + p_dg_2[t] +
+                p_rdg_1[t] + p_rdg_2[t] +
+                p_ess_discharge[t] - p_ess_charge[t] +
+                p_grid_buy[t] - p_grid_sell[t] == p_load[t]);
         }
 
-        // Solve
+        // === Solve the optimization model ===
         IloCplex cplex(model);
-        cplex.setOut(env.getNullStream());
+        cplex.setOut(env.getNullStream());  // Suppress solver output
+
         if (!cplex.solve()) {
             std::cerr << "Optimization failed." << std::endl;
             env.end();
@@ -71,24 +84,35 @@ void optimizeMicrogrid(
         std::cout << "Solution status: " << cplex.getStatus() << std::endl;
         std::cout << "Minimized Objective Function: " << obj << std::endl;
 
-        // Save results
+        // === Save results to file ===
         std::ofstream outputFile(output_filename);
         if (outputFile.is_open()) {
-            outputFile << "Time,Pload,CGbuy,CGsell,Rdg1,Rdg2,PGbuy,PGsell,statoc,Bchg,Bdischg,Pdg1,Pdg2\n";
+            // LaTeX-ready CSV header
+            outputFile << "t,${P^{load}}$,${c^{buy}}$,${c^{sell}}$,${P^{rdg1}}$,${P^{rdg2}}$,${P^{buy}_t}$,${P^{sell}_t}$,"
+                "${SoC_t}$,${P^{chg}_t}$,${P^{dis}_t}$,${P^{dg1}_t}$,${P^{dg2}_t}$\n";
+
             for (int t = 0; t < T; t++) {
-                outputFile << t + 1 << "," << Pload[t] << "," << CGbuy[t] << "," << CGsell[t] << ","
-                    << Rdg1[t] << "," << Rdg2[t] << "," << cplex.getValue(PGbuy[t]) << ","
-                    << -cplex.getValue(PGsell[t]) << "," << cplex.getValue(statoc[t]) << ","
-                    << -cplex.getValue(Bchg[t]) << "," << cplex.getValue(Bdischg[t]) << ","
-                    << cplex.getValue(Pdg1[t]) << "," << cplex.getValue(Pdg2[t]) << "\n";
+                outputFile << t + 1 << ","                            // time
+                    << p_load[t] << ","                        // load
+                    << c_grid_buy[t] << ","                    // buy price
+                    << c_grid_sell[t] << ","                   // sell price
+                    << p_rdg_1[t] << ","                       // RDG1
+                    << p_rdg_2[t] << ","                       // RDG2
+                    << cplex.getValue(p_grid_buy[t]) << ","   // grid buy
+                    << cplex.getValue(p_grid_sell[t]) << ","  // grid sell
+                    << cplex.getValue(soc[t]) << ","          // SoC
+                    << cplex.getValue(p_ess_charge[t]) << "," // battery charge
+                    << cplex.getValue(p_ess_discharge[t]) << "," // battery discharge
+                    << cplex.getValue(p_dg_1[t]) << ","       // DG1
+                    << cplex.getValue(p_dg_2[t]) << "\n";     // DG2
             }
+
             outputFile.close();
             std::cout << "Output saved to " << output_filename << std::endl;
         }
         else {
             std::cerr << "Error writing to file: " << output_filename << std::endl;
         }
-
     }
     catch (IloException& e) {
         std::cerr << "Cplex exception: " << e.getMessage() << std::endl;
