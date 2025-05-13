@@ -15,7 +15,7 @@ int main() {
     std::vector<float> p_rdg_1 = { 0,0,0,0,0,0,0,10,15,20,23,28,33,35,34,31,28,10,0,0,0,0,0,0 };
     std::vector<float> p_rdg_2 = { 0,0,0,0,0,0,0,10,15,20,23,28,33,35,34,31,28,10,0,0,0,0,0,0 };
     
-    const string main_path = "D:\\MyCodesRepos\\multi-energy-microgrids-operations\\results\\electric_network";
+    const string main_path = "D:\\MyCodesRepos\\multi-energy-microgrids-operations\\results\\electrical_network";
     const string file_path = main_path + "\\electrical_network_results.csv";
 
     optimizeMicrogrid(T, c_dg_1, c_dg_2, p_load, c_grid_buy, c_grid_sell, p_rdg_1, p_rdg_2, soc_initial, ess_max, ess_efficiency, file_path);
