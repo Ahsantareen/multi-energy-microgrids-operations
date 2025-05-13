@@ -36,7 +36,7 @@
     <ProjectGuid>{162e5945-a2fb-4819-bef0-ef8653d1c3a9}</ProjectGuid>
     <RootNamespace>MultimicrogridwithEV</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>multi-energymicrogrid</ProjectName>
+    <ProjectName>multi-energy-microgrid</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
