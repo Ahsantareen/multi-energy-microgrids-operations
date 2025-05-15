@@ -1,5 +1,52 @@
 #include "Header.h"
 
+DgData readDgDataFromCSV(const std::string& filename) {
+    DgData dgData;
+    std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open DG CSV file: " << filename << std::endl;
+        return dgData;
+    }
+
+    std::string line;
+    bool isHeader = true;
+
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string value;
+
+        if (isHeader) {
+            isHeader = false;
+            continue; // skip header
+        }
+
+        std::vector<std::string> tokens;
+        while (std::getline(ss, value, ',')) {
+            tokens.push_back(value);
+        }
+
+        if (tokens.size() != 4) {
+            std::cerr << "Invalid line in CSV (expected 4 columns): " << line << std::endl;
+            continue;
+        }
+
+        try {
+            dgData.id.push_back(std::stod(tokens[0]));
+            dgData.cost_per_kwh.push_back(std::stod(tokens[1]));
+            dgData.max_p_kw.push_back(std::stod(tokens[2]));
+            dgData.min_p_kw.push_back(std::stod(tokens[3]));
+        }
+        catch (const std::invalid_argument& e) {
+            std::cerr << "Conversion error in line: " << line << std::endl;
+        }
+    }
+
+    file.close();
+    return dgData;
+}
+
+
 void optimizeMicrogrid(
     int T,
     int c_dg_1,

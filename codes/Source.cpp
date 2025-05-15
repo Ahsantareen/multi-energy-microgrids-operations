@@ -2,6 +2,15 @@
 
 
 int main() {
+    const string input_data_folder = "D:\\MyCodesRepos\\multi-energy-microgrids-operations\\input_data";
+    const string file_name = "dg_data.csv";  // path to your DG CSV file
+    DgData dg = readDgDataFromCSV(input_data_folder+"\\"+file_name);
+    for (size_t i = 0; i < dg.id.size(); ++i) {
+        std::cout << "DG " << dg.id[i]
+            << " | Cost: " << dg.cost_per_kwh[i]
+            << " | Max: " << dg.max_p_kw[i]
+            << " | Min: " << dg.min_p_kw[i] << std::endl;
+    }
     int T = 24;
     int c_dg_1 = 80;
     int c_dg_2 = 90;

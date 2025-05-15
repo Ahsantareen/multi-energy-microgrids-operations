@@ -8,6 +8,14 @@
 ILOSTLBEGIN
 
 
+struct DgData
+{
+    vector<double> id;
+    vector<double> cost_per_kwh;
+    vector<double> max_p_kw;
+    vector<double> min_p_kw;
+};
+
 void optimizeMicrogrid(
         int T,
         int c_dg_1,
@@ -22,4 +30,5 @@ void optimizeMicrogrid(
         float ess_efficiency,
         const std::string& output_filename);
 
+DgData readDgDataFromCSV(const std::string& filename);
 
