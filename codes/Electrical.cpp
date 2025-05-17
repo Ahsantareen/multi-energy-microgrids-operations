@@ -1,5 +1,143 @@
 #include "Header.h"
 
+
+// DGs data
+DgData readDgDataFromCSV(const std::string& filename) {
+    DgData dgData;
+    std::ifstream file(filename);
+    std::set<int> unique_ids;  // Track unique integer IDs
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open DG CSV file: " << filename << std::endl;
+        return dgData;
+    }
+
+    std::string line;
+    bool isHeader = true;
+
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string value;
+
+        if (isHeader) {
+            isHeader = false;
+            continue; // skip header
+        }
+
+        std::vector<std::string> tokens;
+        while (std::getline(ss, value, ',')) {
+            tokens.push_back(value);
+        }
+
+        if (tokens.size() != 4) {
+            std::cerr << "Invalid line in CSV (expected 4 columns): " << line << std::endl;
+            continue;
+        }
+
+        try {
+            int id_int = static_cast<int>(std::stod(tokens[0]));
+            if (unique_ids.find(id_int) != unique_ids.end()) {
+                std::cerr << "Duplicate DG ID found: " << id_int << " (skipping this entry)" << std::endl;
+                continue;
+            }
+
+            // Valid unique ID, insert and store
+            unique_ids.insert(id_int);
+            dgData.id.push_back(id_int);
+            dgData.cost_per_kwh.push_back(std::stod(tokens[1]));
+            dgData.max_p_kw.push_back(std::stod(tokens[2]));
+            dgData.min_p_kw.push_back(std::stod(tokens[3]));
+        }
+        catch (const std::invalid_argument& e) {
+            std::cerr << "Conversion error in line: " << line << std::endl;
+        }
+    }
+
+    file.close();
+    return dgData;
+}
+
+// Prices data
+ElectricityPrice readElectricityPriceFromCSV(const std::string& filename) {
+    ElectricityPrice priceData;
+    std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open electricity price CSV file: " << filename << std::endl;
+        return priceData;
+    }
+
+    std::string line;
+    bool isHeader = true;
+
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string value;
+
+        if (isHeader) {
+            isHeader = false;
+            continue; // skip header
+        }
+
+        std::vector<std::string> tokens;
+        while (std::getline(ss, value, ',')) {
+            tokens.push_back(value);
+        }
+
+        if (tokens.size() != 2) {
+            std::cerr << "Invalid line in CSV (expected 2 columns): " << line << std::endl;
+            continue;
+        }
+
+        try {
+            priceData.buy_price.push_back(std::stod(tokens[0]));
+            priceData.sell_price.push_back(std::stod(tokens[1]));
+        }
+        catch (const std::invalid_argument& e) {
+            std::cerr << "Conversion error in line: " << line << std::endl;
+        }
+    }
+
+    file.close();
+    return priceData;
+}
+
+void printElectricityPriceTable(const ElectricityPrice& prices) {
+    std::cout << "\nElectricity Price Schedule (24 Hours)\n";
+    std::cout << "---------------------------------------------\n";
+    std::cout << "| Hour | Ebuy_price (¢/kWh) | Esell_price (¢/kWh) |\n";
+    std::cout << "---------------------------------------------\n";
+
+    for (size_t i = 0; i < prices.buy_price.size(); ++i) {
+        std::cout << "| "
+            << std::setw(4) << i + 1 << " | "
+            << std::setw(16) << std::fixed << std::setprecision(2) << prices.buy_price[i] << " | "
+            << std::setw(18) << prices.sell_price[i] << " |\n";
+    }
+
+    std::cout << "---------------------------------------------\n";
+    std::cout << "Total Hours: " << prices.buy_price.size() << "\n";
+}
+
+void printDgDataTable(const DgData& dg) {
+    std::cout << "\nNumber of DGs: " << dg.id.size() << "\n";
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "----------------------------------------------------------\n";
+    std::cout << "| DG ID | Cost per kWh | Max Power (kW) | Min Power (kW) |\n";
+    std::cout << "----------------------------------------------------------\n";
+
+    for (size_t i = 0; i < dg.id.size(); ++i) {
+        std::cout << "| "
+            << std::setw(6) << dg.id[i] << " | "
+            << std::setw(13) << dg.cost_per_kwh[i] << " | "
+            << std::setw(14) << dg.max_p_kw[i] << " | "
+            << std::setw(14) << dg.min_p_kw[i] << " |\n";
+    }
+
+    std::cout << "----------------------------------------------------------\n";
+}
+
+
 void optimizeMicrogrid(
     int T,
     int c_dg_1,

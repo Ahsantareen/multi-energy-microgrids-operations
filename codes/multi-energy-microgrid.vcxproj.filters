@@ -21,19 +21,19 @@
     <ClCompile Include="All_energies.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Electric_Water.cpp">
+    <ClCompile Include="Electrical.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Electric_Hydrogen.cpp">
+    <ClCompile Include="Electrical_Cooling.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Electric_Thermal.cpp">
+    <ClCompile Include="Electrical_Hydrogen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Electric.cpp">
+    <ClCompile Include="Electrical_Thermal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Electric_Cooling.cpp">
+    <ClCompile Include="Electrical_Water.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

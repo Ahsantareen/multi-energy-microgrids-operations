@@ -20,11 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="All_energies.cpp" />
-    <ClCompile Include="Electric_Water.cpp" />
-    <ClCompile Include="Electric_Hydrogen.cpp" />
-    <ClCompile Include="Electric_Thermal.cpp" />
-    <ClCompile Include="Electric.cpp" />
-    <ClCompile Include="Electric_Cooling.cpp" />
+    <ClCompile Include="Electrical.cpp" />
+    <ClCompile Include="Electrical_Cooling.cpp" />
+    <ClCompile Include="Electrical_Hydrogen.cpp" />
+    <ClCompile Include="Electrical_Thermal.cpp" />
+    <ClCompile Include="Electrical_Water.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>

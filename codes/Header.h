@@ -4,9 +4,25 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <iomanip>
+#include <set>
 
 ILOSTLBEGIN
 
+
+struct DgData
+{
+    vector<int> id;
+    vector<double> cost_per_kwh;
+    vector<double> max_p_kw;
+    vector<double> min_p_kw;
+};
+
+struct ElectricityPrice
+{
+    vector<double> buy_price;
+    vector<double> sell_price;
+};
 
 void optimizeMicrogrid(
         int T,
@@ -22,4 +38,8 @@ void optimizeMicrogrid(
         float ess_efficiency,
         const std::string& output_filename);
 
+DgData readDgDataFromCSV(const std::string& filename);
+void printDgDataTable(const DgData& dg);
 
+ElectricityPrice readElectricityPriceFromCSV(const std::string& filename);
+void printElectricityPriceTable(const ElectricityPrice& prices);

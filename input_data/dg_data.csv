@@ -1,0 +1,4 @@
+id,cost_per_kwh,max_p_kw,min_p_kw
+1,80,80,0
+2,90,100,0
+3,70,50,0
