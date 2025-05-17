@@ -2,11 +2,19 @@
 
 
 int main() {
-    const string input_data_folder = "D:\\MyCodesRepos\\multi-energy-microgrids-operations\\input_data";
-    const string file_name = "dg_data.csv";  // path to your DG CSV file
-    const DgData dg = readDgDataFromCSV(input_data_folder+"\\"+file_name);
+    const std::string input_data_folder = "D:\\MyCodesRepos\\multi-energy-microgrids-operations\\input_data";
+
+    // === DG Data ===
+    const std::string file_name = "dg_data.csv";
+    const DgData dg = readDgDataFromCSV(input_data_folder + "\\" + file_name);
     printDgDataTable(dg);
 
+    // === Electricity Prices ===
+    const std::string file_name2 = "electricity_prices.csv";
+    const ElectricityPrice prices = readElectricityPriceFromCSV(input_data_folder + "\\" + file_name2);
+    printElectricityPriceTable(prices);
+    
+    return 0;
 
     int T = 24;
     int c_dg_1 = 80;

@@ -18,6 +18,12 @@ struct DgData
     vector<double> min_p_kw;
 };
 
+struct ElectricityPrice
+{
+    vector<double> buy_price;
+    vector<double> sell_price;
+};
+
 void optimizeMicrogrid(
         int T,
         int c_dg_1,
@@ -34,3 +40,6 @@ void optimizeMicrogrid(
 
 DgData readDgDataFromCSV(const std::string& filename);
 void printDgDataTable(const DgData& dg);
+
+ElectricityPrice readElectricityPriceFromCSV(const std::string& filename);
+void printElectricityPriceTable(const ElectricityPrice& prices);

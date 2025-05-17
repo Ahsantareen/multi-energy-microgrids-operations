@@ -1,5 +1,7 @@
 #include "Header.h"
 
+
+// DGs data
 DgData readDgDataFromCSV(const std::string& filename) {
     DgData dgData;
     std::ifstream file(filename);
@@ -53,6 +55,68 @@ DgData readDgDataFromCSV(const std::string& filename) {
 
     file.close();
     return dgData;
+}
+
+// Prices data
+ElectricityPrice readElectricityPriceFromCSV(const std::string& filename) {
+    ElectricityPrice priceData;
+    std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open electricity price CSV file: " << filename << std::endl;
+        return priceData;
+    }
+
+    std::string line;
+    bool isHeader = true;
+
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string value;
+
+        if (isHeader) {
+            isHeader = false;
+            continue; // skip header
+        }
+
+        std::vector<std::string> tokens;
+        while (std::getline(ss, value, ',')) {
+            tokens.push_back(value);
+        }
+
+        if (tokens.size() != 2) {
+            std::cerr << "Invalid line in CSV (expected 2 columns): " << line << std::endl;
+            continue;
+        }
+
+        try {
+            priceData.buy_price.push_back(std::stod(tokens[0]));
+            priceData.sell_price.push_back(std::stod(tokens[1]));
+        }
+        catch (const std::invalid_argument& e) {
+            std::cerr << "Conversion error in line: " << line << std::endl;
+        }
+    }
+
+    file.close();
+    return priceData;
+}
+
+void printElectricityPriceTable(const ElectricityPrice& prices) {
+    std::cout << "\nElectricity Price Schedule (24 Hours)\n";
+    std::cout << "---------------------------------------------\n";
+    std::cout << "| Hour | Ebuy_price (¢/kWh) | Esell_price (¢/kWh) |\n";
+    std::cout << "---------------------------------------------\n";
+
+    for (size_t i = 0; i < prices.buy_price.size(); ++i) {
+        std::cout << "| "
+            << std::setw(4) << i + 1 << " | "
+            << std::setw(16) << std::fixed << std::setprecision(2) << prices.buy_price[i] << " | "
+            << std::setw(18) << prices.sell_price[i] << " |\n";
+    }
+
+    std::cout << "---------------------------------------------\n";
+    std::cout << "Total Hours: " << prices.buy_price.size() << "\n";
 }
 
 void printDgDataTable(const DgData& dg) {
